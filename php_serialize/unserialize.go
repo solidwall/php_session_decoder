@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const UNSERIALIZABLE_OBJECT_MAX_LEN = 10 * 1024 * 1024 * 1024
+const UNSERIALIZABLE_OBJECT_MAX_LEN = 10 * 1024 * 1024
 
 func UnSerialize(s string) (PhpValue, error) {
 	decoder := NewUnSerializer(s)
@@ -132,14 +132,18 @@ func (self *UnSerializer) decodeString(left, right rune, isFinal bool) PhpValue 
 	self.expect(left)
 
 	if strLen > 0 {
-		buf := make([]byte, strLen, strLen)
-		if readLen, err = self.r.Read(buf); err != nil {
-			self.saveError(fmt.Errorf("php_serialize: Error while reading string value: %v", err))
+		if strLen > UNSERIALIZABLE_OBJECT_MAX_LEN {
+			self.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase UNSERIALIZABLE_OBJECT_MAX_LEN const", val))
 		} else {
-			if readLen != strLen {
-				self.saveError(fmt.Errorf("php_serialize: Unable to read string. Expected %d but have got %d bytes", strLen, readLen))
+			buf := make([]byte, strLen, strLen)
+			if readLen, err = self.r.Read(buf); err != nil {
+				self.saveError(fmt.Errorf("php_serialize: Error while reading string value: %v", err))
 			} else {
-				val = string(buf)
+				if readLen != strLen {
+					self.saveError(fmt.Errorf("php_serialize: Unable to read string. Expected %d but have got %d bytes", strLen, readLen))
+				} else {
+					val = string(buf)
+				}
 			}
 		}
 	}
@@ -163,17 +167,12 @@ func (self *UnSerializer) decodeArray() PhpValue {
 		v, errVal := self.Decode()
 
 		if errKey == nil && errVal == nil {
-			val[k] = v
-			/*switch t := k.(type) {
+			switch t := k.(type) {
 			default:
 				self.saveError(fmt.Errorf("php_serialize: Unexpected key type %T", t))
-			case string:
-				stringKey, _ := k.(string)
-				val[stringKey] = v
-			case int:
-				intKey, _ := k.(int)
-				val[strconv.Itoa(intKey)] = v
-			}*/
+			case string, int:
+				val[k] = v
+			}
 		} else {
 			self.saveError(fmt.Errorf("php_serialize: Error while reading key or(and) value of array"))
 		}
