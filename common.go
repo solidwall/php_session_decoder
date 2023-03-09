@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import "github.com/solidwall/php_session_decoder/php_serialize"
 

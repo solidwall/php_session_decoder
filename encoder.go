@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import (
 	"bytes"
@@ -19,12 +19,12 @@ func NewPhpEncoder(data PhpSession) *PhpEncoder {
 	}
 }
 
-func (self *PhpEncoder) SetSerializedEncodeFunc(f php_serialize.SerializedEncodeFunc) {
-	self.encoder.SetSerializedEncodeFunc(f)
+func (pe *PhpEncoder) SetSerializedEncodeFunc(f php_serialize.SerializedEncodeFunc) {
+	pe.encoder.SetSerializedEncodeFunc(f)
 }
 
-func (self *PhpEncoder) Encode() (string, error) {
-	if self.data == nil {
+func (pe *PhpEncoder) Encode() (string, error) {
+	if pe.data == nil {
 		return "", nil
 	}
 	var (
@@ -33,10 +33,10 @@ func (self *PhpEncoder) Encode() (string, error) {
 	)
 	buf := bytes.NewBuffer([]byte{})
 
-	for k, v := range self.data {
+	for k, v := range pe.data {
 		buf.WriteString(k)
 		buf.WriteRune(SEPARATOR_VALUE_NAME)
-		if val, err = self.encoder.Encode(v); err != nil {
+		if val, err = pe.encoder.Encode(v); err != nil {
 			err = fmt.Errorf("php_session: error during encode value for %q: %v", k, err)
 			break
 		}

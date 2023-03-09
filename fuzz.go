@@ -1,6 +1,7 @@
+//go:build gofuzz
 // +build gofuzz
 
-package php_session_decoder
+package main
 
 func Fuzz(data []byte) int {
 	decoder := NewPhpDecoder(string(data))

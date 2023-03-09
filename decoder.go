@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import (
 	"bytes"
@@ -22,11 +22,11 @@ func NewPhpDecoder(phpSession string) *PhpDecoder {
 	return decoder
 }
 
-func (self *PhpDecoder) SetSerializedDecodeFunc(f php_serialize.SerializedDecodeFunc) {
-	self.decoder.SetSerializedDecodeFunc(f)
+func (pd *PhpDecoder) SetSerializedDecodeFunc(f php_serialize.SerializedDecodeFunc) {
+	pd.decoder.SetSerializedDecodeFunc(f)
 }
 
-func (self *PhpDecoder) Decode() (PhpSession, error) {
+func (pd *PhpDecoder) Decode() (PhpSession, error) {
 	var (
 		name  string
 		err   error
@@ -35,10 +35,10 @@ func (self *PhpDecoder) Decode() (PhpSession, error) {
 	res := make(PhpSession)
 
 	for {
-		if name, err = self.readName(); err != nil {
+		if name, err = pd.readName(); err != nil {
 			break
 		}
-		if value, err = self.decoder.Decode(); err != nil {
+		if value, err = pd.decoder.Decode(); err != nil {
 			break
 		}
 		res[name] = value
@@ -50,14 +50,14 @@ func (self *PhpDecoder) Decode() (PhpSession, error) {
 	return res, err
 }
 
-func (self *PhpDecoder) readName() (string, error) {
+func (pd *PhpDecoder) readName() (string, error) {
 	var (
 		token rune
 		err   error
 	)
 	buf := bytes.NewBuffer([]byte{})
 	for {
-		if token, _, err = self.source.ReadRune(); err != nil || token == SEPARATOR_VALUE_NAME {
+		if token, _, err = pd.source.ReadRune(); err != nil || token == SEPARATOR_VALUE_NAME {
 			break
 		} else {
 			buf.WriteRune(token)

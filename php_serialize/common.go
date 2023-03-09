@@ -56,52 +56,52 @@ type PhpObject struct {
 	members   PhpArray
 }
 
-func (self *PhpObject) GetClassName() string {
-	return self.className
+func (po *PhpObject) GetClassName() string {
+	return po.className
 }
 
-func (self *PhpObject) SetClassName(name string) *PhpObject {
-	self.className = name
-	return self
+func (po *PhpObject) SetClassName(name string) *PhpObject {
+	po.className = name
+	return po
 }
 
-func (self *PhpObject) GetMembers() PhpArray {
-	return self.members
+func (po *PhpObject) GetMembers() PhpArray {
+	return po.members
 }
 
-func (self *PhpObject) SetMembers(members PhpArray) *PhpObject {
-	self.members = members
-	return self
+func (po *PhpObject) SetMembers(members PhpArray) *PhpObject {
+	po.members = members
+	return po
 }
 
-func (self *PhpObject) GetPrivate(name string) (v PhpValue, ok bool) {
-	v, ok = self.members["\x00"+self.className+"\x00"+name]
+func (po *PhpObject) GetPrivate(name string) (v PhpValue, ok bool) {
+	v, ok = po.members["\x00"+po.className+"\x00"+name]
 	return
 }
 
-func (self *PhpObject) SetPrivate(name string, value PhpValue) *PhpObject {
-	self.members["\x00"+self.className+"\x00"+name] = value
-	return self
+func (po *PhpObject) SetPrivate(name string, value PhpValue) *PhpObject {
+	po.members["\x00"+po.className+"\x00"+name] = value
+	return po
 }
 
-func (self *PhpObject) GetProtected(name string) (v PhpValue, ok bool) {
-	v, ok = self.members["\x00*\x00"+name]
+func (po *PhpObject) GetProtected(name string) (v PhpValue, ok bool) {
+	v, ok = po.members["\x00*\x00"+name]
 	return
 }
 
-func (self *PhpObject) SetProtected(name string, value PhpValue) *PhpObject {
-	self.members["\x00*\x00"+name] = value
-	return self
+func (po *PhpObject) SetProtected(name string, value PhpValue) *PhpObject {
+	po.members["\x00*\x00"+name] = value
+	return po
 }
 
-func (self *PhpObject) GetPublic(name string) (v PhpValue, ok bool) {
-	v, ok = self.members[name]
+func (po *PhpObject) GetPublic(name string) (v PhpValue, ok bool) {
+	v, ok = po.members[name]
 	return
 }
 
-func (self *PhpObject) SetPublic(name string, value PhpValue) *PhpObject {
-	self.members[name] = value
-	return self
+func (po *PhpObject) SetPublic(name string, value PhpValue) *PhpObject {
+	po.members[name] = value
+	return po
 }
 
 func NewPhpObjectSerialized(className string) *PhpObjectSerialized {
@@ -116,31 +116,31 @@ type PhpObjectSerialized struct {
 	value     PhpValue
 }
 
-func (self *PhpObjectSerialized) GetClassName() string {
-	return self.className
+func (pos *PhpObjectSerialized) GetClassName() string {
+	return pos.className
 }
 
-func (self *PhpObjectSerialized) SetClassName(name string) *PhpObjectSerialized {
-	self.className = name
-	return self
+func (pos *PhpObjectSerialized) SetClassName(name string) *PhpObjectSerialized {
+	pos.className = name
+	return pos
 }
 
-func (self *PhpObjectSerialized) GetData() string {
-	return self.data
+func (pos *PhpObjectSerialized) GetData() string {
+	return pos.data
 }
 
-func (self *PhpObjectSerialized) SetData(data string) *PhpObjectSerialized {
-	self.data = data
-	return self
+func (pos *PhpObjectSerialized) SetData(data string) *PhpObjectSerialized {
+	pos.data = data
+	return pos
 }
 
-func (self *PhpObjectSerialized) GetValue() PhpValue {
-	return self.value
+func (pos *PhpObjectSerialized) GetValue() PhpValue {
+	return pos.value
 }
 
-func (self *PhpObjectSerialized) SetValue(value PhpValue) *PhpObjectSerialized {
-	self.value = value
-	return self
+func (pos *PhpObjectSerialized) SetValue(value PhpValue) *PhpObjectSerialized {
+	pos.value = value
+	return pos
 }
 
 func NewPhpSplArray(array, properties PhpValue) *PhpSplArray {
@@ -164,26 +164,26 @@ type PhpSplArray struct {
 	properties PhpValue
 }
 
-func (self *PhpSplArray) GetFlags() int {
-	return self.flags
+func (psa *PhpSplArray) GetFlags() int {
+	return psa.flags
 }
 
-func (self *PhpSplArray) SetFlags(value int) {
-	self.flags = value
+func (psa *PhpSplArray) SetFlags(value int) {
+	psa.flags = value
 }
 
-func (self *PhpSplArray) GetArray() PhpValue {
-	return self.array
+func (psa *PhpSplArray) GetArray() PhpValue {
+	return psa.array
 }
 
-func (self *PhpSplArray) SetArray(value PhpValue) {
-	self.array = value
+func (psa *PhpSplArray) SetArray(value PhpValue) {
+	psa.array = value
 }
 
-func (self *PhpSplArray) GetProperties() PhpValue {
-	return self.properties
+func (psa *PhpSplArray) GetProperties() PhpValue {
+	return psa.properties
 }
 
-func (self *PhpSplArray) SetProperties(value PhpValue) {
-	self.properties = value
+func (psa *PhpSplArray) SetProperties(value PhpValue) {
+	psa.properties = value
 }

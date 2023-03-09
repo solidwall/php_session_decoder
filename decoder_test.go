@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import (
 	"encoding/json"
@@ -255,8 +255,7 @@ func TestDecodeSerializableObjectFoo(t *testing.T) {
 }
 
 func TestDecodeSerializableObjectBar(t *testing.T) {
-	var f php_serialize.SerializedDecodeFunc
-	f = func(s string) (php_serialize.PhpValue, error) {
+	var f php_serialize.SerializedDecodeFunc = func(s string) (php_serialize.PhpValue, error) {
 		var (
 			val map[string]string
 			err error

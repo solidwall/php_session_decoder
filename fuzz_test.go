@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import (
 	"testing"
@@ -15,6 +15,9 @@ func TestFuzzCrashers(t *testing.T) {
 
 	for _, f := range crashers {
 		decoder := NewPhpDecoder(f)
-		decoder.Decode()
+		_, err := decoder.Decode()
+		if err != nil {
+			continue
+		}
 	}
 }

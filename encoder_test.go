@@ -1,4 +1,4 @@
-package php_session_decoder
+package main
 
 import (
 	"encoding/json"
@@ -156,8 +156,7 @@ func TestEncodeSerializableObjectValue(t *testing.T) {
 }
 
 func TestEncodeSerializableObjectValueJSON(t *testing.T) {
-	var f php_serialize.SerializedEncodeFunc
-	f = func(v php_serialize.PhpValue) (string, error) {
+	var f php_serialize.SerializedEncodeFunc = func(v php_serialize.PhpValue) (string, error) {
 		res, err := json.Marshal(v)
 		return string(res), err
 	}
