@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const UNSERIALIZABLE_OBJECT_MAX_LEN = 10 * 1024 * 1024
+const UNSERIALIZABLE_OBJECT_MAX_SIZE_DEFAULT = 10 * 1024 * 1024
 
 func UnSerialize(s string) (PhpValue, error) {
 	decoder := NewUnSerializer(s)
@@ -21,11 +21,17 @@ type UnSerializer struct {
 	r          *strings.Reader
 	lastErr    error
 	decodeFunc SerializedDecodeFunc
+	maxSize    int
 }
 
 func NewUnSerializer(data string) *UnSerializer {
+	return NewUnSerializerWithLimit(data, UNSERIALIZABLE_OBJECT_MAX_SIZE_DEFAULT)
+}
+
+func NewUnSerializerWithLimit(data string, limit int) *UnSerializer {
 	return &UnSerializer{
-		source: data,
+		source:  data,
+		maxSize: limit,
 	}
 }
 
@@ -132,8 +138,8 @@ func (us *UnSerializer) decodeString(left, right rune, isFinal bool) PhpValue {
 	us.expect(left)
 
 	if strLen > 0 {
-		if strLen > UNSERIALIZABLE_OBJECT_MAX_LEN {
-			us.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase UNSERIALIZABLE_OBJECT_MAX_LEN const", val))
+		if strLen > us.maxSize {
+			us.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase max size limit", val))
 		} else {
 			buf := make([]byte, strLen)
 			if readLen, err = us.r.Read(buf); err != nil {
@@ -262,8 +268,8 @@ func (us *UnSerializer) readLen() int {
 	} else {
 		if val, err = strconv.Atoi(raw); err != nil {
 			us.saveError(fmt.Errorf("php_serialize: Unable to convert %s to int: %v", raw, err))
-		} else if val > UNSERIALIZABLE_OBJECT_MAX_LEN {
-			us.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase UNSERIALIZABLE_OBJECT_MAX_LEN const", val))
+		} else if val > us.maxSize {
+			us.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase max size limit", val))
 			val = 0
 		}
 	}
