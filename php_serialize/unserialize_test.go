@@ -533,6 +533,11 @@ func FuzzUnserializer(f *testing.F) {
 	f.Add("C:17:\"TestSerializable2\":17:{{\"foo\":4,\"bar\":2}}")
 	f.Add("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
 	f.Add("C:11:\"ArrayObject\":21:{x:i:0;a:0:{};m:a:0:{}}")
+    // crashes from gofuzz
+    f.Add("|C2984619140625:")
+    f.Add("|C9478759765625:")
+    f.Add("|C :590791705756156:")
+    f.Add("|C298461940625:")
 	f.Fuzz(func(t *testing.T, data string) {
 		_, err := UnSerialize(data)
 		if err != nil {
