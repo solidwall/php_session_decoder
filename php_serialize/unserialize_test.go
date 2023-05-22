@@ -513,3 +513,35 @@ func TestDecodeSplArraySerialized(t *testing.T) {
 		t.Errorf("SplArray.properties expected: empty PhpArray, got %v", array.properties)
 	}
 }
+
+func FuzzUnserializer(f *testing.F) {
+	f.Add("N;")
+	f.Add("b:1;")
+	f.Add("b:0;")
+	f.Add("i:42;")
+	f.Add("i:-42;")
+	f.Add("d:42.378900000000002;")
+	f.Add("d:-42.378900000000002;")
+	f.Add("s:6:\"foobar\";")
+	f.Add("a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}")
+	f.Add("a:2:{s:3:\"foo\";i:4;s:3:\"bar\";i:2;}")
+	f.Add("a:2:{s:3:\"foo\";a:3:{i:0;i:10;i:1;i:11;i:2;i:12;}s:3:\"bar\";i:2;}")
+	f.Add("O:4:\"Test\":3:{s:6:\"public\";i:1;s:12:\"\x00*\x00protected\";i:2;s:13:\"\x00Test\x00private\";i:3;}")
+	f.Add("a:2:{i:0;O:5:\"Test1\":3:{s:6:\"public\";i:11;s:12:\"\x00*\x00protected\";i:12;s:14:\"\x00Test1\x00private\";i:13;}i:1;O:5:\"Test2\":3:{s:6:\"public\";i:21;s:12:\"\x00*\x00protected\";i:22;s:14:\"\x00Test2\x00private\";i:23;}}")
+	f.Add("C:16:\"TestSerializable\":6:{foobar}")
+	f.Add("C:17:\"TestSerializable1\":34:{a:2:{s:3:\"foo\";i:4;s:3:\"bar\";i:2;}}")
+	f.Add("C:17:\"TestSerializable2\":17:{{\"foo\":4,\"bar\":2}}")
+	f.Add("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
+	f.Add("C:11:\"ArrayObject\":21:{x:i:0;a:0:{};m:a:0:{}}")
+    // crashes from gofuzz
+    f.Add("|C2984619140625:")
+    f.Add("|C9478759765625:")
+    f.Add("|C :590791705756156:")
+    f.Add("|C298461940625:")
+	f.Fuzz(func(t *testing.T, data string) {
+		_, err := UnSerialize(data)
+		if err != nil {
+			return
+		}
+	})
+}

@@ -10,58 +10,47 @@ func PhpValueString(p PhpValue) (res string) {
 }
 
 func PhpValueBool(p PhpValue) (res bool) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case bool:
-		res, _ = p.(bool)
+		res = p
 	case string:
-		str, _ := p.(string)
-		res, _ = strconv.ParseBool(str)
+		res, _ = strconv.ParseBool(p)
 	}
 	return
 }
 
 func PhpValueInt(p PhpValue) (res int) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case int:
-		res, _ = p.(int)
+		res = p
 	case int8:
-		intVal, _ := p.(int8)
-		res = int(intVal)
+		res = int(p)
 	case int16:
-		intVal, _ := p.(int16)
-		res = int(intVal)
+		res = int(p)
 	case int32:
-		intVal, _ := p.(int32)
-		res = int(intVal)
+		res = int(p)
 	case int64:
-		intVal, _ := p.(int64)
-		res = int(intVal)
+		res = int(p)
 	case uint:
-		intVal, _ := p.(uint)
-		res = int(intVal)
+		res = int(p)
 	case uint8:
-		intVal, _ := p.(uint8)
-		res = int(intVal)
+		res = int(p)
 	case uint16:
-		intVal, _ := p.(uint16)
-		res = int(intVal)
+		res = int(p)
 	case uint32:
-		intVal, _ := p.(uint32)
-		res = int(intVal)
+		res = int(p)
 	case uint64:
-		intVal, _ := p.(uint64)
-		res = int(intVal)
+		res = int(p)
 	case string:
-		str, _ := p.(string)
-		res, _ = strconv.Atoi(str)
+		res, _ = strconv.Atoi(p)
 	}
 	return
 }
 
 func PhpValueInt64(p PhpValue) (res int64) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case int64:
-		res = p.(int64)
+		res = p
 	default:
 		res = int64(PhpValueInt(p))
 	}
@@ -69,9 +58,9 @@ func PhpValueInt64(p PhpValue) (res int64) {
 }
 
 func PhpValueUInt(p PhpValue) (res uint) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case uint:
-		res = p.(uint)
+		res = p
 	default:
 		res = uint(PhpValueInt(p))
 	}
@@ -79,9 +68,9 @@ func PhpValueUInt(p PhpValue) (res uint) {
 }
 
 func PhpValueUInt64(p PhpValue) (res uint64) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case uint64:
-		res = p.(uint64)
+		res = p
 	default:
 		res = uint64(PhpValueInt(p))
 	}
@@ -89,12 +78,11 @@ func PhpValueUInt64(p PhpValue) (res uint64) {
 }
 
 func PhpValueFloat64(p PhpValue) (res float64) {
-	switch p.(type) {
+	switch p := p.(type) {
 	case float64:
-		res, _ = p.(float64)
+		res = p
 	case string:
-		str, _ := p.(string)
-		res, _ = strconv.ParseFloat(str, 64)
+		res, _ = strconv.ParseFloat(p, 64)
 	default:
 		return float64(PhpValueInt(p))
 	}
