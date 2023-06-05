@@ -268,6 +268,7 @@ func (us *UnSerializer) readLen() int {
 	} else {
 		if val, err = strconv.Atoi(raw); err != nil {
 			us.saveError(fmt.Errorf("php_serialize: Unable to convert %s to int: %v", raw, err))
+			val = 0
 		} else if val > us.maxSize {
 			us.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase max size limit", val))
 			val = 0
