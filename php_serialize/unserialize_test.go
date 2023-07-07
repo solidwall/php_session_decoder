@@ -2,6 +2,8 @@ package php_serialize
 
 import (
 	"encoding/json"
+	"errors"
+	"strings"
 	"testing"
 )
 
@@ -514,6 +516,13 @@ func TestDecodeSplArraySerialized(t *testing.T) {
 	}
 }
 
+func TestMaximumDepthLimit(t *testing.T) {
+	_, err := UnSerialize(strings.Repeat("a:1:{", 2000000))
+	if !errors.Is(err, ErrDepthLimit) {
+		t.Errorf("Expected ErrDepthLimit error: %v, but got: %v\n", ErrDepthLimit, err)
+	}
+}
+
 func FuzzUnserializer(f *testing.F) {
 	f.Add("N;")
 	f.Add("b:1;")
@@ -533,11 +542,11 @@ func FuzzUnserializer(f *testing.F) {
 	f.Add("C:17:\"TestSerializable2\":17:{{\"foo\":4,\"bar\":2}}")
 	f.Add("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
 	f.Add("C:11:\"ArrayObject\":21:{x:i:0;a:0:{};m:a:0:{}}")
-    // crashes from gofuzz
-    f.Add("|C2984619140625:")
-    f.Add("|C9478759765625:")
-    f.Add("|C :590791705756156:")
-    f.Add("|C298461940625:")
+	// crashes from gofuzz
+	f.Add("|C2984619140625:")
+	f.Add("|C9478759765625:")
+	f.Add("|C :590791705756156:")
+	f.Add("|C298461940625:")
 	f.Fuzz(func(t *testing.T, data string) {
 		_, err := UnSerialize(data)
 		if err != nil {
