@@ -2,13 +2,19 @@ package php_serialize
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 )
 
-const UNSERIALIZABLE_OBJECT_MAX_SIZE_DEFAULT = 10 * 1024 * 1024
+var ErrDepthLimit = errors.New("php_serialize: Exceeded maximum depth")
+
+const (
+	unserializableObjectMaxSizeDefault = 10 * 1024 * 1024
+	maxUnserializeDepthDefault         = 10000
+)
 
 func UnSerialize(s string) (PhpValue, error) {
 	decoder := NewUnSerializer(s)
@@ -20,18 +26,37 @@ type UnSerializer struct {
 	source     string
 	r          *strings.Reader
 	decodeFunc SerializedDecodeFunc
+	curDepth   int
 	maxSize    int
+	maxDepth   int
 }
 
 func NewUnSerializer(data string) *UnSerializer {
-	return NewUnSerializerWithLimit(data, UNSERIALIZABLE_OBJECT_MAX_SIZE_DEFAULT)
+	return NewUnSerializerWithLimits(
+		data,
+		unserializableObjectMaxSizeDefault,
+		maxUnserializeDepthDefault,
+	)
 }
 
-func NewUnSerializerWithLimit(data string, limit int) *UnSerializer {
-	return &UnSerializer{
-		source:  data,
-		maxSize: limit,
+// NewUnSerializerWithLimits provides ability to custom fill in the values of constants.
+// If 0 is passed as a value, default value will be used.
+func NewUnSerializerWithLimits(data string, maxSize int, maxDepth int) *UnSerializer {
+	var res UnSerializer
+	res.source = data
+	res.curDepth = 0
+	if maxSize == 0 {
+		res.maxSize = unserializableObjectMaxSizeDefault
+	} else {
+		res.maxSize = maxSize
 	}
+
+	if maxDepth == 0 {
+		res.maxDepth = maxUnserializeDepthDefault
+	} else {
+		res.maxDepth = maxDepth
+	}
+	return &res
 }
 
 func (us *UnSerializer) SetReader(r *strings.Reader) {
@@ -46,6 +71,13 @@ func (us *UnSerializer) Decode() (PhpValue, error) {
 	if us.r == nil {
 		us.r = strings.NewReader(us.source)
 	}
+
+	us.curDepth++
+	if us.curDepth > us.maxDepth {
+		return nil, ErrDepthLimit
+	}
+
+	defer func() { us.curDepth-- }()
 
 	var value PhpValue
 
@@ -198,17 +230,20 @@ func (us *UnSerializer) decodeArray() (PhpValue, error) {
 
 	for i := 0; i < arrLen; i++ {
 		k, errKey := us.Decode()
-		v, errVal := us.Decode()
+		if errKey != nil {
+			return nil, errKey
+		}
 
-		if errKey == nil && errVal == nil {
-			switch t := k.(type) {
-			default:
-				return nil, fmt.Errorf("php_serialize: Unexpected key type %T", t)
-			case string, int:
-				val[k] = v
-			}
-		} else {
-			return nil, fmt.Errorf("php_serialize: Error while reading key or(and) value of array")
+		v, errVal := us.Decode()
+		if errVal != nil {
+			return nil, errVal
+		}
+
+		switch t := k.(type) {
+		default:
+			return nil, fmt.Errorf("php_serialize: Unexpected key type %T", t)
+		case string, int:
+			val[k] = v
 		}
 	}
 
