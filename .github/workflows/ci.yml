@@ -1,0 +1,25 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Test ${{matrix.go}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.20", "1.19"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{matrix.go}}
+      - name: Test
+        run: |
+          go test -v ./...
+      - name: Test with race detector
+        run: |
+          go test -v -race ./...
